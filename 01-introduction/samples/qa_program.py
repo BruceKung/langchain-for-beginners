@@ -11,8 +11,16 @@ from langchain_openai import ChatOpenAI
 # Load environment variables
 load_dotenv()
 
+MODEL = "qwen3-max"
+URL = "https://dashscope.aliyuncs.com/compatible-mode/v1"
+KEY = "sk-c34720d12dbb45f1aafcc5af5a7237cd"
+
 # Create a ChatOpenAI instance
-model = ChatOpenAI(model=os.environ.get("AI_MODEL", "gpt-5-mini"))
+model = ChatOpenAI(
+        model=MODEL,
+        base_url=URL,
+        api_key=KEY
+    )
 
 
 def main():
