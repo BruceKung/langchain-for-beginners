@@ -18,7 +18,9 @@ from pydantic import BaseModel, Field
 
 # Load environment variables
 load_dotenv()
-
+MODEL = "qwen3-max"
+URL = "https://dashscope.aliyuncs.com/compatible-mode/v1"
+KEY = "sk-c34720d12dbb45f1aafcc5af5a7237cd"
 
 class CalculatorInput(BaseModel):
     """Input for calculator."""
@@ -42,9 +44,9 @@ def main():
 
     # Create model and bind tools
     model = ChatOpenAI(
-        model=os.getenv("AI_MODEL"),
-        base_url=os.getenv("AI_ENDPOINT"),
-        api_key=os.getenv("AI_API_KEY"),
+        model=MODEL,
+        base_url=URL,
+        api_key=KEY,
     )
 
     model_with_tools = model.bind_tools([calculator])
