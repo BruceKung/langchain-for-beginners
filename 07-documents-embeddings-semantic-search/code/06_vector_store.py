@@ -9,14 +9,18 @@ Run: python 07-documents-embeddings-semantic-search/code/06_vector_store.py
 """
 
 import os
-
+from typing import List
 from dotenv import load_dotenv
 from langchain_core.documents import Document
 from langchain_core.vectorstores import InMemoryVectorStore
-from langchain_openai import AzureOpenAIEmbeddings
+from langchain_core.embeddings import Embeddings
+import requests
 
 load_dotenv()
 
+EMBEDDING_MODEL = "text-embedding-v4"
+API_KEY = "sk-c34720d12dbb45f1aafcc5af5a7237cd"
+BASE_URL = "https://dashscope.aliyuncs.com/compatible-mode/v1/embeddings"
 
 def get_embeddings_endpoint():
     """Get the Azure OpenAI endpoint, removing /openai/v1 suffix if present."""
@@ -27,16 +31,37 @@ def get_embeddings_endpoint():
         endpoint = endpoint.replace("/openai/v1/", "")
     return endpoint
 
+class AliEmbeddings(Embeddings):
+    def __init__(self):
+        self.api_key = API_KEY
+        self.url = BASE_URL
+        self.model = EMBEDDING_MODEL
+
+    def embed_documents(self, texts: List[str]) -> List[List[float]]:
+        return self._get_embeddings(texts)
+
+    def embed_query(self, text: str) -> List[float]:
+        return self._get_embeddings([text])[0]
+
+    def _get_embeddings(self, texts: List[str]) -> List[List[float]]:
+        headers = {
+            "Authorization": f"Bearer {self.api_key}",
+            "Content-Type": "application/json"
+        }
+        data = {
+            "model": self.model,
+            "input": texts
+        }
+        response = requests.post(self.url, headers=headers, json=data)
+        response.raise_for_status()
+        result = response.json()
+        return [item["embedding"] for item in result["data"]]
+
 
 def main():
     print("🗄️  Vector Store and Semantic Search\n")
 
-    embeddings = AzureOpenAIEmbeddings(
-        azure_endpoint=get_embeddings_endpoint(),
-        api_key=os.getenv("AI_API_KEY"),
-        model=os.getenv("AI_EMBEDDING_MODEL", "text-embedding-ada-002"),
-        api_version="2024-02-01",
-    )
+    embeddings = AliEmbeddings()
 
     # Create documents about different topics
     docs = [

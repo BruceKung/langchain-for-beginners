@@ -10,12 +10,18 @@ Run: python 07-documents-embeddings-semantic-search/code/05_basic_embeddings.py
 
 import math
 import os
+import requests
 
 from dotenv import load_dotenv
 from langchain_openai import AzureOpenAIEmbeddings
+from langchain_openai import OpenAIEmbeddings
 
 load_dotenv()
 
+EMBDEDDING_MODEL = "text-embedding-v4"
+MODEL = "qwen3-max"
+URL = "https://dashscope.aliyuncs.com/compatible-mode/v1/embeddings"
+KEY = "sk-c34720d12dbb45f1aafcc5af5a7237cd"
 
 def get_embeddings_endpoint():
     """
@@ -36,15 +42,28 @@ def cosine_similarity(a: list[float], b: list[float]) -> float:
     mag_b = math.sqrt(sum(x * x for x in b))
     return dot_product / (mag_a * mag_b)
 
+def get_tongyi_embeddings(texts: list[str]) -> list[list[float]]:
+    headers = {
+        "Authorization": f"Bearer {KEY}",
+        "Content-Type": "application/json"
+    }
+    data = {
+        "model": EMBDEDDING_MODEL,
+        "input": texts
+    }
+    response = requests.post(URL, headers=headers, json=data)
+    response.raise_for_status()
+    result = response.json()
+    return [item["embedding"] for item in result["data"]]
+
 
 def main():
     print("🔢 Basic Embeddings Example\n")
 
-    embeddings = AzureOpenAIEmbeddings(
-        azure_endpoint=get_embeddings_endpoint(),
-        api_key=os.getenv("AI_API_KEY"),
-        model=os.getenv("AI_EMBEDDING_MODEL", "text-embedding-ada-002"),
-        api_version="2024-02-01",
+    embeddings = OpenAIEmbeddings(
+        model=EMBDEDDING_MODEL,
+        api_key=KEY,
+        base_url=URL,
     )
 
     # Create embeddings for different texts
@@ -57,7 +76,7 @@ def main():
 
     print("Creating embeddings for texts...\n")
 
-    all_embeddings = embeddings.embed_documents(texts)
+    all_embeddings = get_tongyi_embeddings(texts)
 
     print(f"✅ Created {len(all_embeddings)} embeddings")
     print(f"   Each embedding has {len(all_embeddings[0])} dimensions\n")
