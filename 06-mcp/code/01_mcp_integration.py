@@ -28,7 +28,10 @@ from langchain_mcp_adapters.client import MultiServerMCPClient
 from langchain_openai import ChatOpenAI
 
 load_dotenv()
-
+BASE_MODEL = "qwen-plus"
+ADVANCED_MODEL = "qwen3-max"
+URL = "https://dashscope.aliyuncs.com/compatible-mode/v1"
+KEY = "sk-c34720d12dbb45f1aafcc5af5a7237cd"
 
 async def main():
     print("🔌 MCP Integration Demo - Context7 Documentation Server\n")
@@ -67,9 +70,9 @@ async def main():
 
         # 3. Create model
         model = ChatOpenAI(
-            model=os.getenv("AI_MODEL"),
-            base_url=os.getenv("AI_ENDPOINT"),
-            api_key=os.getenv("AI_API_KEY"),
+            model=BASE_MODEL,
+            base_url=URL,
+            api_key=KEY,
         )
 
         # 4. Create agent with MCP tools - uses same create_agent() pattern!
