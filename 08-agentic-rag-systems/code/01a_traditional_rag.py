@@ -100,15 +100,15 @@ def main():
         # Step 2: Generate answer with context
         messages = [
             SystemMessage(content="""You are a helpful assistant. Answer the question based on the provided context.
-If the question can be answered without the context, still try to reference it if relevant.
-If the context is not helpful, answer based on your general knowledge."""),
-            HumanMessage(content=f"""Context:
-{context}
+            If the question can be answered without the context, still try to reference it if relevant.
+            If the context is not helpful, answer based on your general knowledge."""),
+                        HumanMessage(content=f"""Context:
+            {context}
 
-Question: {question}
+            Question: {question}
 
-Answer:""")
-        ]
+            Answer:""")
+                    ]
         
         response = model.invoke(messages)
         return response.content, retrieved_docs
